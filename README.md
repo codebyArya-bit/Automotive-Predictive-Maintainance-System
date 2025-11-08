@@ -172,6 +172,10 @@ HEALTH_CHECK_INTERVAL=30
 PROMETHEUS_PORT=9090
 LOG_LEVEL=INFO
 
+# Frontend / CORS
+FRONTEND_ORIGINS=http://localhost:3000,http://localhost:3001
+CORS_ORIGINS=https://your-vercel-app.vercel.app
+
 # External Services (if needed)
 # LLM_PROVIDER=auto
 # OPENAI_API_KEY=your_openai_key

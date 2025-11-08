@@ -44,7 +44,9 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: CORS_ORIGINS
-        sync: false
+        value: https://automind-e6ujfk86f-aryas-projects-6676c3c7.vercel.app,https://automind-ai.vercel.app
+      - key: FRONTEND_ORIGINS
+        value: https://automind-e6ujfk86f-aryas-projects-6676c3c7.vercel.app,https://automind-ai.vercel.app
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL

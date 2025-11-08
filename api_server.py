@@ -92,20 +92,40 @@ app = FastAPI(
 
 # Add CORS middleware
 # When credentials are allowed, browsers disallow wildcard origins. Use explicit origins.
-# Support multiple origins via FRONTEND_ORIGINS (comma-separated), fallback to FRONTEND_ORIGIN.
+# Support multiple origins via FRONTEND_ORIGINS/CORS_ORIGINS (comma-separated), fallback to singular origin.
 default_dev_origins = {
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:5173",
     "http://localhost:3002",
 }
-frontend_origins_env = os.getenv("FRONTEND_ORIGINS")
-if frontend_origins_env:
-    env_origins = {o.strip() for o in frontend_origins_env.split(",") if o.strip()}
-    allowed_frontend_origins = sorted(default_dev_origins.union(env_origins))
-else:
-    frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3001")
-    allowed_frontend_origins = sorted(default_dev_origins.union({frontend_origin}))
+
+
+def _parse_origin_list(raw_value: Optional[str]) -> Set[str]:
+    """Split comma-separated origins, trimming whitespace and ignoring blanks."""
+    if not raw_value:
+        return set()
+    return {origin.strip() for origin in raw_value.split(",") if origin.strip()}
+
+
+allowed_frontend_origins_set: Set[str] = set(default_dev_origins)
+multi_origin_env_found = False
+
+for env_var in ("FRONTEND_ORIGINS", "CORS_ORIGINS"):
+    parsed = _parse_origin_list(os.getenv(env_var))
+    if parsed:
+        allowed_frontend_origins_set.update(parsed)
+        multi_origin_env_found = True
+
+if not multi_origin_env_found:
+    fallback_origin = (
+        os.getenv("FRONTEND_ORIGIN")
+        or os.getenv("CORS_ORIGIN")
+        or "http://localhost:3001"
+    )
+    allowed_frontend_origins_set.add(fallback_origin)
+
+allowed_frontend_origins = sorted(allowed_frontend_origins_set)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_frontend_origins,
