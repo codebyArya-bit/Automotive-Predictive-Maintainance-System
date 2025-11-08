@@ -2,9 +2,9 @@ name: AutoMind CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ disabled ]  # Temporarily disabled for deployment
   pull_request:
-    branches: [ main, develop ]
+    branches: [ disabled ]  # Temporarily disabled for deployment
   release:
     types: [ published ]
 
