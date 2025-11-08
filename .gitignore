@@ -74,3 +74,4 @@ frontend/out/
 # Cache
 .cache/
 *.cache
+.vercel

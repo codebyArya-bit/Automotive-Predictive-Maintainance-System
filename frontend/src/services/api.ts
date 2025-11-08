@@ -24,9 +24,15 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
-    const apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
+    // Read API base URL from env and normalize to avoid double "/api/v1"
+    const rawApiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
       ? import.meta.env.VITE_API_BASE_URL
       : 'http://localhost:8000';
+
+    // Normalize: remove trailing slashes and any existing "/api/v1" suffix
+    const apiBase = rawApiBase
+      .replace(/\/+$/, '')
+      .replace(/\/api\/v1$/, '');
 
     this.api = axios.create({
       baseURL: `${apiBase}/api/v1`,
@@ -35,6 +41,16 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     });
+
+    // Log the raw env and resolved API base URL at runtime for verification
+    try {
+      // eslint-disable-next-line no-console
+      console.info('[ApiService] raw VITE_API_BASE_URL', rawApiBase);
+      console.info('[ApiService] normalized apiBase', apiBase);
+      console.info('[ApiService] baseURL', `${apiBase}/api/v1`);
+    } catch (e) {
+      // no-op
+    }
 
     // Request interceptor
     this.api.interceptors.request.use(

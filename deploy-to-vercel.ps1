@@ -36,7 +36,7 @@ if (Test-Path $envFile) {
     Write-Host "⚠️  frontend\.env.production not found!" -ForegroundColor Yellow
     Write-Host "Please create it with your backend URL:" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "VITE_API_BASE_URL=https://your-render-app.onrender.com/api/v1"
+    Write-Host "VITE_API_BASE_URL=https://your-render-app.onrender.com"
     Write-Host "VITE_WS_URL=wss://your-render-app.onrender.com/ws"
     Write-Host "VITE_APP_NAME=AutoMind"
     Write-Host "VITE_ENVIRONMENT=production"

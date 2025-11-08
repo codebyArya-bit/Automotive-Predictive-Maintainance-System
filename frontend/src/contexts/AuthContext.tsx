@@ -21,12 +21,61 @@ interface AuthContextType {
   checkAuth: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Provide a safe default so hooks won’t throw during edge cases (e.g., HMR, split roots)
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isLoading: false,
+  login: async (email: string, password: string) => {
+    // Fallback login outside provider: attempt API call and persist to localStorage
+    try {
+      const response = await apiService.login(email, password);
+      localStorage.setItem('auth_token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      // eslint-disable-next-line no-console
+      console.warn('[AuthContext] Fallback login used without provider. State not reactive.');
+    } catch (err) {
+      throw err;
+    }
+  },
+  logout: async () => {
+    try {
+      await apiService.logout();
+    } catch {
+      // ignore
+    } finally {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+      // eslint-disable-next-line no-console
+      console.warn('[AuthContext] Fallback logout used without provider.');
+    }
+  },
+  checkAuth: async () => {
+    // Non-reactive fallback: best-effort verification
+    const token = localStorage.getItem('auth_token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      try {
+        await apiService.getCurrentUser();
+      } catch {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.warn('[AuthContext] Fallback checkAuth used without provider.');
+  }
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  // Log if the fallback is being used (no provider in tree)
+  if (context === defaultAuthContext) {
+    // eslint-disable-next-line no-console
+    console.warn('[AuthContext] useAuth accessed without AuthProvider. Using fallback context.');
   }
   return context;
 };

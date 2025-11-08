@@ -126,13 +126,32 @@ if not multi_origin_env_found:
     allowed_frontend_origins_set.add(fallback_origin)
 
 allowed_frontend_origins = sorted(allowed_frontend_origins_set)
+# Optional: allow Vercel preview subdomains via regex
+# You can set CORS_ORIGIN_REGEX env var to override the default.
+cors_origin_regex = os.getenv("CORS_ORIGIN_REGEX")
+if not cors_origin_regex:
+    # Default to your project prefix on Vercel to cover preview deployments
+    # Example: https://automind-<deployment-id>-aryas-projects-6676c3c7.vercel.app
+    cors_origin_regex = r"https://automind-.*\.vercel\.app"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_frontend_origins,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Log CORS configuration for visibility
+try:
+    logging.info(
+        "CORS configured with explicit origins: %s and origin regex: %s",
+        allowed_frontend_origins,
+        cors_origin_regex,
+    )
+except Exception:
+    pass
 
 # Capture request logs via middleware
 app.add_middleware(LoggingMiddleware)
