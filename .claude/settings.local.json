@@ -40,7 +40,20 @@
       "Bash(vercel --yes:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(vercel env:*)",
+      "Bash(npm install:*)",
+      "Bash(render whoami)",
+      "Bash(start https://dashboard.render.com/select-repo?type=blueprint)",
+      "Bash(start https://dashboard.render.com/blueprints)",
+      "Bash(git branch:*)",
+      "Bash(gh:*)",
+      "Bash(start https://github.com/codebyArya-bit/Automotive-Predictive-Maintainance-System/settings/branches)",
+      "Bash(vercel:*)",
+      "Bash(start https://vercel.com/aryas-projects-6676c3c7/frontend/settings)",
+      "Bash(start https://dashboard.render.com/)",
+      "Bash(start https://dashboard.render.com/select-repo?type=web)",
+      "Bash(start https://dashboard.render.com/web/srv-ctfvghu8ii6s73acb63g/settings)"
     ],
     "deny": [],
     "ask": []
