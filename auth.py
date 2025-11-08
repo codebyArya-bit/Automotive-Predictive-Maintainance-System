@@ -4,7 +4,8 @@ Handles user authentication, JWT tokens, and role-based access control
 """
 
 import os
-import jwt
+from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError
 import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List
@@ -87,12 +88,12 @@ class AuthService:
         try:
             payload = jwt.decode(token, AuthService.SECRET_KEY, algorithms=[AuthService.ALGORITHM])
             return payload
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has expired"
             )
-        except jwt.InvalidTokenError:
+        except JWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
