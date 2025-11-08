@@ -38,3 +38,10 @@ alembic>=1.12.0
 # Database Connection Pooling
 asyncpg>=0.29.0
 aiopg>=1.4.0
+
+# Production Server
+gunicorn>=21.2.0
+python-multipart>=0.0.6
+
+# WebSocket Support
+websockets>=12.0

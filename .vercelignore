@@ -1,0 +1,41 @@
+# Python and backend files
+*.py
+*.pyc
+__pycache__/
+*.db
+*.sqlite
+
+# Project files
+agents/
+docs/
+k8s/
+logs/
+monitoring/
+terraform/
+tests/
+
+# Backend config
+requirements.txt
+render.yaml
+Dockerfile
+docker-compose.yml
+init.sql
+
+# Development
+.env
+.env.example
+.pytest_cache/
+.vscode/
+.idea/
+
+# Documentation
+*.md
+!frontend/README.md
+
+# Test files
+test_*.py
+*_test.py
+
+# Temporary files
+tmp_*
+nul
