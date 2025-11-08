@@ -100,7 +100,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '28h 45m',
     version: '2.3.1',
     createdAt: '2024-12-01',
-    lastUpdated: '2025-11-05'
+    lastUpdated: '2025-11-05',
+    last_activity: '2025-11-08T04:30:00Z',
+    tasks_completed: 1247
   },
   {
     id: 'agent-002',
@@ -113,7 +115,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '72h 15m',
     version: '1.8.5',
     createdAt: '2024-11-15',
-    lastUpdated: '2025-11-06'
+    lastUpdated: '2025-11-06',
+    last_activity: '2025-11-08T04:25:00Z',
+    tasks_completed: 892
   },
   {
     id: 'agent-003',
@@ -126,7 +130,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '156h 30m',
     version: '3.1.0',
     createdAt: '2024-10-20',
-    lastUpdated: '2025-11-07'
+    lastUpdated: '2025-11-07',
+    last_activity: '2025-11-08T04:20:00Z',
+    tasks_completed: 2104
   },
   {
     id: 'agent-004',
@@ -139,7 +145,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '98h 20m',
     version: '2.0.3',
     createdAt: '2024-11-10',
-    lastUpdated: '2025-11-06'
+    lastUpdated: '2025-11-06',
+    last_activity: '2025-11-08T04:28:00Z',
+    tasks_completed: 1567
   },
   {
     id: 'agent-005',
@@ -152,7 +160,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '12h 10m',
     version: '1.5.2',
     createdAt: '2024-12-01',
-    lastUpdated: '2025-11-07'
+    lastUpdated: '2025-11-07',
+    last_activity: '2025-11-08T03:00:00Z',
+    tasks_completed: 645
   },
   {
     id: 'agent-006',
@@ -165,7 +175,9 @@ const generateMockAgents = (): Agent[] => [
     uptime: '4h 35m',
     version: '1.2.8',
     createdAt: '2024-11-25',
-    lastUpdated: '2025-11-07'
+    lastUpdated: '2025-11-07',
+    last_activity: '2025-11-08T02:00:00Z',
+    tasks_completed: 423
   }
 ];
 
