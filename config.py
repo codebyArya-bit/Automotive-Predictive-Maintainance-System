@@ -12,6 +12,10 @@ load_dotenv()
 class Config:
     # API Keys and External Services
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    LLM_PROVIDER = os.getenv("LLM_PROVIDER", "auto")
 
     # Prediction Thresholds
     PREDICTION_THRESHOLD_HIGH = 0.7  # 70% probability threshold

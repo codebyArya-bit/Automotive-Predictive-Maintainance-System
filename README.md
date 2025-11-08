@@ -173,7 +173,10 @@ PROMETHEUS_PORT=9090
 LOG_LEVEL=INFO
 
 # External Services (if needed)
+# LLM_PROVIDER=auto
 # OPENAI_API_KEY=your_openai_key
+# GEMINI_API_KEY=your_gemini_key
+# GEMINI_MODEL=gemini-1.5-flash
 # DATABASE_URL=postgresql://user:pass@localhost/db
 ```
 

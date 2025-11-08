@@ -40,5 +40,13 @@ services:
         value: INFO
       - key: CORS_ORIGINS
         value: https://automind-ai.vercel.app
+      - key: LLM_PROVIDER
+        value: rule_based
       - key: OPENAI_API_KEY
-        value: sk-not-needed
+        value: ""
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash

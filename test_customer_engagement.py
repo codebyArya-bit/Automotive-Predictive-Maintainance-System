@@ -167,8 +167,8 @@ def test_multi_language_support():
 
 
 if __name__ == "__main__":
-    # Set a dummy OpenAI API key for testing (in production, use real key)
-    os.environ["OPENAI_API_KEY"] = "test-key-for-demo"
+    # Force tests to use deterministic, offline mode
+    os.environ["LLM_PROVIDER"] = "rule_based"
 
     test_customer_engagement_agent()
     test_multi_language_support()

@@ -10,8 +10,16 @@ import logging
 from typing import Dict, List, Optional, TypedDict, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime
-import openai
-from langchain_openai import ChatOpenAI
+
+try:
+    from langchain_openai import ChatOpenAI
+except ImportError:
+    ChatOpenAI = None  # Optional dependency
+
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None  # Optional dependency
 
 # from langchain_community.memory import ConversationBufferWindowMemory
 from textblob import TextBlob
@@ -64,15 +72,20 @@ class CustomerEngagementAgent:
     - Discount eligibility and offer management
     """
 
-    def __init__(self, openai_api_key: Optional[str] = None):
+    def __init__(
+        self,
+        openai_api_key: Optional[str] = None,
+        gemini_api_key: Optional[str] = None,
+        llm_provider: Optional[str] = None,
+    ):
         """Initialize the Customer Engagement Agent"""
         self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
-        if not self.openai_api_key:
-            raise ValueError("OpenAI API key is required")
-
-        # Initialize OpenAI client
-        openai.api_key = self.openai_api_key
-        self.llm = ChatOpenAI(model="gpt - 4", temperature=0.7, openai_api_key=self.openai_api_key)
+        self.gemini_api_key = gemini_api_key or os.getenv("GEMINI_API_KEY")
+        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        self.preferred_llm_provider = (llm_provider or os.getenv("LLM_PROVIDER", "auto")).lower()
+        self.llm_provider = "rule_based"
+        self.llm = self._initialize_llm()
 
         # Initialize translator
         # Simple translator mock (in production, use proper translation service)
@@ -97,6 +110,91 @@ class CustomerEngagementAgent:
         self.active_conversations: Dict[str, ConversationState] = {}
 
         logger.info("Customer Engagement Agent initialized successfully")
+
+    def _initialize_llm(self):
+        """Initialize optional LLM provider (OpenAI or Gemini)."""
+        provider = self.preferred_llm_provider
+
+        if provider in ("", "auto"):
+            if self.openai_api_key and ChatOpenAI is not None:
+                provider = "openai"
+            elif self.gemini_api_key and genai is not None:
+                provider = "gemini"
+            else:
+                provider = "rule_based"
+
+        if provider == "openai":
+            if not self.openai_api_key:
+                logger.warning("OpenAI provider selected but OPENAI_API_KEY is missing; using rule-based mode.")
+                self.llm_provider = "rule_based"
+                return None
+            if ChatOpenAI is None:
+                logger.warning("langchain-openai is not installed; using rule-based mode.")
+                self.llm_provider = "rule_based"
+                return None
+            self.llm_provider = "openai"
+            logger.info("Customer Engagement Agent configured to use OpenAI (%s).", self.openai_model)
+            return ChatOpenAI(model=self.openai_model, temperature=0.7, openai_api_key=self.openai_api_key)
+
+        if provider == "gemini":
+            if not self.gemini_api_key:
+                logger.warning("Gemini provider selected but GEMINI_API_KEY is missing; using rule-based mode.")
+                self.llm_provider = "rule_based"
+                return None
+            if genai is None:
+                logger.warning("google-generativeai is not installed; using rule-based mode.")
+                self.llm_provider = "rule_based"
+                return None
+            try:
+                genai.configure(api_key=self.gemini_api_key)
+                model = genai.GenerativeModel(self.gemini_model)
+                self.llm_provider = "gemini"
+                logger.info("Customer Engagement Agent configured to use Gemini (%s).", self.gemini_model)
+                return model
+            except Exception as exc:
+                logger.warning("Failed to initialize Gemini provider (%s); using rule-based mode.", exc)
+                self.llm_provider = "rule_based"
+                return None
+
+        self.llm_provider = "rule_based"
+        logger.info("Customer Engagement Agent running in rule-based mode (no LLM provider configured).")
+        return None
+
+    def _maybe_generate_with_llm(self, prompt: str, fallback: str, target_language: str = "english") -> str:
+        """Use the configured LLM to refine a response, falling back to rule-based copy."""
+        if not self.llm:
+            return fallback
+
+        language_instruction = (
+            f"Respond in {target_language}."
+            if target_language and target_language.lower() != "english"
+            else "Respond in English."
+        )
+        final_prompt = (
+            f"{prompt.strip()}\n\n"
+            f"{language_instruction}\n"
+            "Keep the response under 120 words, empathetic, and action-oriented."
+        )
+
+        try:
+            if self.llm_provider == "openai":
+                response = self.llm.predict(final_prompt).strip()
+                return response or fallback
+            if self.llm_provider == "gemini":
+                result = self.llm.generate_content(final_prompt)
+                text = getattr(result, "text", "") if result else ""
+                text = text.strip()
+                return text or fallback
+        except Exception as exc:
+            logger.warning("LLM generation failed (%s). Falling back to deterministic response.", exc)
+
+        return fallback
+
+    def _localize_text(self, text: str, target_language: str) -> str:
+        """Translate deterministic responses to the customer's preferred language."""
+        if target_language and target_language.lower() != "english":
+            return self.translate_message(text, target_language)
+        return text
 
     def get_customer_profile(self, customer_id: str) -> Dict:
         """Fetch customer information and preferences"""
@@ -250,6 +348,8 @@ class CustomerEngagementAgent:
 
     def get_opening_message(self, customer_profile: CustomerProfile, prediction: Dict) -> str:
         """Generate personalized opening message"""
+        component = prediction.get("component", "component issue")
+        priority = prediction.get("priority", "P2")
         # Determine time of day greeting
         current_hour = datetime.now().hour
         if current_hour < 12:
@@ -262,11 +362,18 @@ class CustomerEngagementAgent:
         # Format the opening message
         opening_msg = f"Namaste! Good {greeting_time}, {customer_profile.name}. This is Aarti calling from AutoCare Plus. I hope you're doing well! I'm reaching out about your {customer_profile.vehicle_model}. Do you have 2 minutes to discuss something important about your vehicle's health?"
 
-        # Translate if needed
-        if customer_profile.preferred_language != "english":
-            opening_msg = self.translate_message(opening_msg, customer_profile.preferred_language)
+        target_language = customer_profile.preferred_language
+        localized_opening = self._localize_text(opening_msg, target_language)
 
-        return opening_msg
+        prompt = (
+            "You are an empathetic automotive service advisor reaching out proactively about a predicted issue.\n"
+            f"Customer name: {customer_profile.name}.\n"
+            f"Vehicle: {customer_profile.vehicle_model}.\n"
+            f"Predicted component at risk: {component} with priority {priority}.\n"
+            "Craft a warm, concise opening (under 60 words) asking for 2 minutes to discuss the finding."
+        )
+
+        return self._maybe_generate_with_llm(prompt, localized_opening, target_language)
 
     def explain_issue(self, prediction: Dict, customer_profile: CustomerProfile) -> str:
         """Explain the predicted failure in simple, non-technical terms"""
@@ -289,11 +396,17 @@ class CustomerEngagementAgent:
 
 Our certified technicians can fix this quickly, and we'll make sure your {customer_profile.vehicle_model} runs smoothly for years to come."""
 
-        # Translate if needed
-        if customer_profile.preferred_language != "english":
-            explanation = self.translate_message(explanation, customer_profile.preferred_language)
+        target_language = customer_profile.preferred_language
+        localized_explanation = self._localize_text(explanation, target_language)
 
-        return explanation
+        prompt = (
+            "Explain the predictive maintenance finding to the customer.\n"
+            f"Component: {component}. Probability: {probability}%. Days to failure: {days_to_failure}. "
+            f"Urgency guidance: {urgency_tone}. Vehicle model: {customer_profile.vehicle_model}.\n"
+            "Reassure the customer, highlight that this is proactive, and invite them to schedule service."
+        )
+
+        return self._maybe_generate_with_llm(prompt, localized_explanation, target_language)
 
     def handle_objection(self, objection_type: str, customer_profile: CustomerProfile, prediction: Dict) -> str:
         """Handle common customer objections with persuasive responses"""
@@ -322,11 +435,17 @@ Our certified technicians can fix this quickly, and we'll make sure your {custom
             vehicle_model=customer_profile.vehicle_model,
         )
 
-        # Translate if needed
-        if customer_profile.preferred_language != "english":
-            response = self.translate_message(response, customer_profile.preferred_language)
+        target_language = customer_profile.preferred_language
+        localized_response = self._localize_text(response, target_language)
 
-        return response
+        prompt = (
+            "Handle the customer's objection during a proactive vehicle maintenance call.\n"
+            f"Objection type: {objection_type}. Component: {component}. Estimated cost: {estimated_cost}. "
+            f"Discount available: {discount_percent}%. Vehicle model: {customer_profile.vehicle_model}.\n"
+            "Acknowledge the concern, reiterate the benefit, and keep the tone respectful and persuasive."
+        )
+
+        return self._maybe_generate_with_llm(prompt, localized_response, target_language)
 
     def generate_closing_message(
         self, outcome: str, customer_profile: CustomerProfile, appointment_details: Dict = None
@@ -343,13 +462,19 @@ You'll receive a confirmation SMS and app notification with all the details. We'
 Would you like me to follow up with you in a few days?"""
 
         else:  # pending/undecided
-            closing = f"""No worries—take your time to think about it, {customer_profile.name}. I'll send you all the details via SMS and app notification. You can book whenever you're ready. Should I follow up with you in 2 - 3 days just as a friendly reminder?"""
+            closing = f"""No worries-take your time to think about it, {customer_profile.name}. I'll send you all the details via SMS and app notification. You can book whenever you're ready. Should I follow up with you in 2 - 3 days just as a friendly reminder?"""
 
-        # Translate if needed
-        if customer_profile.preferred_language != "english":
-            closing = self.translate_message(closing, customer_profile.preferred_language)
+        target_language = customer_profile.preferred_language
+        localized_closing = self._localize_text(closing, target_language)
 
-        return closing
+        prompt = (
+            "Provide a closing statement for a proactive automotive maintenance call.\n"
+            f"Outcome: {outcome}. Customer: {customer_profile.name}.\n"
+            f"Appointment details: {appointment_details or 'not scheduled yet'}.\n"
+            "Keep the tone appreciative, clear on next steps, and under 80 words."
+        )
+
+        return self._maybe_generate_with_llm(prompt, localized_closing, target_language)
 
     def check_escalation_needed(self, sentiment_score: float, conversation_history: List[Dict]) -> bool:
         """Determine if conversation needs human escalation"""
