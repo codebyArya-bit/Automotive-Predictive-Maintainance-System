@@ -1,0 +1,25 @@
+[MASTER]
+ignore=venv,env,frontend,node_modules,.pytest_cache,__pycache__,dist,build
+jobs=1
+
+[MESSAGES CONTROL]
+disable=
+    C0111,  # missing-docstring
+    C0103,  # invalid-name
+    C0301,  # line-too-long
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    W0703,  # broad-except
+    E1101,  # no-member
+
+[FORMAT]
+max-line-length=120
+indent-string='    '
+
+[BASIC]
+good-names=i,j,k,ex,_,id,db
+
+[DESIGN]
+max-args=7
+max-attributes=10
+max-locals=15

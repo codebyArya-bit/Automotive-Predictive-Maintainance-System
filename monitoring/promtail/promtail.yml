@@ -1,0 +1,140 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # AutoMind API logs
+  - job_name: automind-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: automind-api
+          service: api
+          environment: development
+          __path__: /var/lib/docker/containers/*/*-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            attrs:
+      - json:
+          source: attrs
+          expressions:
+            tag:
+      - regex:
+          source: tag
+          expression: '^(?P<container_name>(?:[^_]+_){2}(?P<service>[^_]+))'
+      - labels:
+          stream:
+          container_name:
+          service:
+
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          service: system
+          environment: development
+          __path__: /var/log/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="system"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\w+ \d+ \d+:\d+:\d+) (?P<hostname>\w+) (?P<service>\w+): (?P<message>.*)'
+            - labels:
+                hostname:
+                service:
+            - timestamp:
+                source: timestamp
+                format: Jan 02 15:04:05
+
+  # Docker container logs
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          service: docker
+          environment: development
+          __path__: /var/lib/docker/containers/*/*-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            attrs:
+      - json:
+          source: attrs
+          expressions:
+            tag:
+      - regex:
+          source: tag
+          expression: '^(?P<container_name>(?:[^_]+_){2}(?P<service>[^_]+))'
+      - labels:
+          stream:
+          container_name:
+          service:
+
+  # Application-specific log parsing
+  - job_name: automind-structured
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: automind-structured
+          service: automind
+          environment: development
+          __path__: /var/log/automind/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp:
+            level:
+            logger:
+            message:
+            module:
+            function:
+            line:
+      - labels:
+          level:
+          logger:
+          module:
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+
+  # Error detection and alerting
+  - job_name: error-detection
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: error-detection
+          service: automind
+          environment: development
+          __path__: /var/lib/docker/containers/*/*-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+      - match:
+          selector: '{job="error-detection"}'
+          stages:
+            - regex:
+                source: output
+                expression: '.*(ERROR|CRITICAL|FATAL).*'
+            - labels:
+                alert_level: error

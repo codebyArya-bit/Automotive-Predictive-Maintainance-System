@@ -1,0 +1,339 @@
+name: AutoMind CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AWS_REGION: us-west-2
+
+jobs:
+  # Code Quality and Testing
+  test:
+    name: Run Tests and Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg14
+        env:
+          POSTGRES_DB: test_automind_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio black flake8 mypy
+
+    - name: Run code formatting check
+      run: black --check .
+
+    - name: Run linting
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Run type checking
+      run: mypy . --ignore-missing-imports
+
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_automind_db
+        REDIS_URL: redis://localhost:6379/0
+        ENVIRONMENT: test
+      run: |
+        pytest --cov=. --cov-report=xml --cov-report=html
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Security Scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run Bandit security linter
+      run: |
+        pip install bandit
+        bandit -r . -f json -o bandit-report.json || true
+
+  # Build and Push Docker Images
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.event_name != 'pull_request'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Deploy to Development
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name automind-dev
+
+    - name: Deploy to Kubernetes
+      run: |
+        # Update image tag in kustomization
+        cd k8s
+        kustomize edit set image automind/api=${{ needs.build.outputs.image-tag }}
+        
+        # Apply to development namespace
+        kubectl apply -k . --namespace=automind-dev
+        
+        # Wait for rollout
+        kubectl rollout status deployment/automind-api --namespace=automind-dev --timeout=300s
+
+    - name: Run smoke tests
+      run: |
+        # Wait for service to be ready
+        kubectl wait --for=condition=ready pod -l app=automind-api --namespace=automind-dev --timeout=300s
+        
+        # Port forward and test
+        kubectl port-forward service/automind-api-service 8080:8000 --namespace=automind-dev &
+        sleep 10
+        
+        # Basic health check
+        curl -f http://localhost:8080/api/v1/health || exit 1
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name automind-staging
+
+    - name: Deploy to Kubernetes
+      run: |
+        cd k8s
+        kustomize edit set image automind/api=${{ needs.build.outputs.image-tag }}
+        kubectl apply -k . --namespace=automind-staging
+        kubectl rollout status deployment/automind-api --namespace=automind-staging --timeout=300s
+
+    - name: Run integration tests
+      run: |
+        kubectl wait --for=condition=ready pod -l app=automind-api --namespace=automind-staging --timeout=300s
+        kubectl port-forward service/automind-api-service 8080:8000 --namespace=automind-staging &
+        sleep 10
+        
+        # Run comprehensive tests
+        python -m pytest tests/integration/ --base-url=http://localhost:8080
+
+  # Deploy to Production
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name automind-prod
+
+    - name: Deploy to Production
+      run: |
+        cd k8s
+        kustomize edit set image automind/api=${{ needs.build.outputs.image-tag }}
+        
+        # Blue-green deployment strategy
+        kubectl apply -k . --namespace=automind
+        
+        # Wait for new pods to be ready
+        kubectl rollout status deployment/automind-api --namespace=automind --timeout=600s
+        
+        # Verify deployment
+        kubectl get pods --namespace=automind -l app=automind-api
+
+    - name: Post-deployment verification
+      run: |
+        # Health check
+        kubectl wait --for=condition=ready pod -l app=automind-api --namespace=automind --timeout=300s
+        
+        # Performance test
+        kubectl port-forward service/automind-api-service 8080:8000 --namespace=automind &
+        sleep 10
+        
+        curl -f http://localhost:8080/api/v1/health
+        
+        # Run production smoke tests
+        python -m pytest tests/smoke/ --base-url=http://localhost:8080
+
+    - name: Notify deployment success
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: "🚀 AutoMind successfully deployed to production!"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback on failure
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy-prod
+    if: failure()
+    environment: production
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Rollback deployment
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name automind-prod
+        kubectl rollout undo deployment/automind-api --namespace=automind
+        kubectl rollout status deployment/automind-api --namespace=automind --timeout=300s
+
+    - name: Notify rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: "⚠️ AutoMind production deployment failed and was rolled back!"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

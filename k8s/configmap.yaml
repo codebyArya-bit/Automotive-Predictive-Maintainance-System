@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: automind-config
+  namespace: automind
+data:
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  DEBUG: "false"
+  PROMETHEUS_PORT: "9090"
+  LOG_LEVEL: "INFO"
+  REDIS_URL: "redis://redis-service:6379/0"
+  DATABASE_URL: "postgresql://automind_user:automind_password@postgres-service:5432/automind_db"
+  ENVIRONMENT: "production"
+  
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: automind-config
+  namespace: automind-staging
+data:
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  DEBUG: "true"
+  PROMETHEUS_PORT: "9090"
+  LOG_LEVEL: "DEBUG"
+  REDIS_URL: "redis://redis-service:6379/0"
+  DATABASE_URL: "postgresql://automind_user:automind_password@postgres-service:5432/automind_db"
+  ENVIRONMENT: "staging"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: automind-config
+  namespace: automind-dev
+data:
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  DEBUG: "true"
+  PROMETHEUS_PORT: "9090"
+  LOG_LEVEL: "DEBUG"
+  REDIS_URL: "redis://redis-service:6379/0"
+  DATABASE_URL: "postgresql://automind_user:automind_password@postgres-service:5432/automind_db"
+  ENVIRONMENT: "development"

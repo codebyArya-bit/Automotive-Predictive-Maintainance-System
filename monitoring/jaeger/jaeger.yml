@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-configuration
+  namespace: automind
+data:
+  jaeger.yml: |
+    # Jaeger All-in-One Configuration
+    
+    # Collector configuration
+    collector:
+      zipkin:
+        host-port: ":9411"
+      
+    # Query configuration  
+    query:
+      base-path: /
+      
+    # Agent configuration
+    agent:
+      strategies:
+        default_strategy:
+          type: probabilistic
+          param: 0.1
+      
+    # Storage configuration
+    storage:
+      type: memory
+      memory:
+        max-traces: 50000
+        
+    # Sampling configuration
+    sampling:
+      default_strategy:
+        type: probabilistic
+        param: 0.1
+      per_service_strategies:
+        - service: "automind-api"
+          type: probabilistic
+          param: 0.5
+        - service: "celery-worker"
+          type: probabilistic
+          param: 0.2
+        - service: "postgres"
+          type: probabilistic
+          param: 0.1
+        - service: "redis"
+          type: probabilistic
+          param: 0.1
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: automind
+  labels:
+    app: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:1.50
+        ports:
+        - containerPort: 16686
+          name: query
+        - containerPort: 14268
+          name: collector
+        - containerPort: 14250
+          name: grpc
+        - containerPort: 6831
+          name: agent-compact
+          protocol: UDP
+        - containerPort: 6832
+          name: agent-binary
+          protocol: UDP
+        - containerPort: 5778
+          name: agent-config
+        - containerPort: 9411
+          name: zipkin
+        env:
+        - name: COLLECTOR_ZIPKIN_HOST_PORT
+          value: ":9411"
+        - name: QUERY_BASE_PATH
+          value: "/"
+        - name: SPAN_STORAGE_TYPE
+          value: "memory"
+        - name: MEMORY_MAX_TRACES
+          value: "50000"
+        volumeMounts:
+        - name: jaeger-config
+          mountPath: /etc/jaeger
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 16686
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 16686
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: jaeger-config
+        configMap:
+          name: jaeger-configuration
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-query
+  namespace: automind
+  labels:
+    app: jaeger
+spec:
+  ports:
+  - port: 16686
+    targetPort: 16686
+    name: query
+  selector:
+    app: jaeger
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: automind
+  labels:
+    app: jaeger
+spec:
+  ports:
+  - port: 14268
+    targetPort: 14268
+    name: collector
+  - port: 14250
+    targetPort: 14250
+    name: grpc
+  - port: 9411
+    targetPort: 9411
+    name: zipkin
+  selector:
+    app: jaeger
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent
+  namespace: automind
+  labels:
+    app: jaeger
+spec:
+  ports:
+  - port: 6831
+    targetPort: 6831
+    name: agent-compact
+    protocol: UDP
+  - port: 6832
+    targetPort: 6832
+    name: agent-binary
+    protocol: UDP
+  - port: 5778
+    targetPort: 5778
+    name: agent-config
+  selector:
+    app: jaeger

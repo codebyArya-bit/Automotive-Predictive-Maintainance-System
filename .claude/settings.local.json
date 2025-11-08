@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(exit 0)",
+      "Bash(pip install:*)",
+      "Bash(python -m flake8:*)",
+      "Bash(python -m black:*)",
+      "Bash(python -m autoflake:*)",
+      "Bash(python fix_lint_issues.py:*)",
+      "Bash(python fix_remaining_lint.py:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(python:*)",
+      "Bash(timeout 3 echo:*)",
+      "Bash(timeout 5 echo:*)",
+      "Bash(nul)",
+      "Bash(openapi_temp.json)",
+      "Bash(api_server.py)",
+      "Bash(taskkill:*)",
+      "Bash(taskkill /F /PID 38660)",
+      "Bash(taskkill /F /PID 37012)",
+      "Bash(find:*)",
+      "Bash(lint_output.txt)",
+      "Bash(lint_output2.txt)",
+      "Bash(npx tsc:*)",
+      "Bash(tasklist:*)",
+      "Bash(while read pid)",
+      "Bash(do taskkill //F //PID $pid)",
+      "Bash(done)",
+      "Bash(npm run dev:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File update_colors.ps1)",
+      "Bash(powershell -ExecutionPolicy Bypass -File fix_all_colors.ps1)",
+      "Bash(powershell:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,54 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: automind-deployment
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - postgres-deployment.yaml
+  - redis-deployment.yaml
+  - automind-api-deployment.yaml
+  - celery-deployment.yaml
+  - monitoring-deployment.yaml
+  - ingress.yaml
+
+images:
+  - name: automind/api
+    newTag: latest
+
+commonLabels:
+  app.kubernetes.io/name: automind
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/component: backend
+  app.kubernetes.io/part-of: automind-system
+
+namespace: automind
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: automind-api
+    spec:
+      template:
+        metadata:
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "9090"
+            prometheus.io/path: "/metrics"
+
+configMapGenerator:
+  - name: app-version
+    literals:
+      - VERSION=1.0.0
+      - BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      - GIT_COMMIT=$(git rev-parse --short HEAD)
+
+secretGenerator:
+  - name: automind-secrets-env
+    envs:
+      - .env  # Create this file with your actual secrets

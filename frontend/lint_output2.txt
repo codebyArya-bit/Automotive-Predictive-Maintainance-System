@@ -1,0 +1,259 @@
+
+> automind-frontend@1.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 200
+
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\DemandForecastDashboard.tsx
+  74:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\ErrorBoundary.tsx
+  140:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\MaintenanceForm.tsx
+  42:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\RCACAPAReport.tsx
+   96:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  252:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  279:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\VehicleForm.tsx
+  36:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\components\VoiceAgentSimulator.tsx
+   36:3   warning  'initialPriority' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                  @typescript-eslint/no-unused-vars
+   48:9   warning  The 'conversationMessages' logical expression could make the dependencies of useEffect Hook (at line 125) change on every render. To fix this, wrap the initialization of 'conversationMessages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  105:6   warning  React Hook useEffect has a missing dependency: 'call'. Either include it or remove the dependency array. You can also do a functional update 'setCall(c => ...)' if you only need 'call' in the 'setCall' call              react-hooks/exhaustive-deps
+  111:32  warning  Unexpected any. Specify a different type                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  164:19  warning  Unexpected any. Specify a different type                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\config\index.ts
+  64:3  warning  Unexpected console statement  no-console
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\contexts\AuthContext.tsx
+   25:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+   45:6   warning  React Hook useEffect has a missing dependency: 'checkAuth'. Either include it or remove the dependency array                    react-hooks/exhaustive-deps
+  179:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\hooks\useApiWithRetry.ts
+   16:37  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+   89:32  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+   93:20  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+  108:24  warning  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies  react-hooks/exhaustive-deps
+  118:32  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+  146:36  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+  146:45  warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\hooks\useNotifications.ts
+   14:25  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   50:81  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   51:45  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   71:11  warning  'connect' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+   71:20  warning  'disconnect' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   74:18  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   96:60  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  114:19  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  125:19  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\hooks\useWebSocket.test.ts
+  14:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\hooks\useWebSocket.ts
+   10:40  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   11:22  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   17:16  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  187:6   warning  React Hook useCallback has missing dependencies: 'state.isConnecting', 'state.socket', and 'url'. Either include them or remove the dependency array. If 'setState' needs the current value of 'url', you can also switch to useReducer instead of useState and read 'url' in the reducer  react-hooks/exhaustive-deps
+  210:42  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  236:6   warning  React Hook useCallback has a missing dependency: 'url'. Either include it or remove the dependency array                                                                                                                                                                                   react-hooks/exhaustive-deps
+  259:6   warning  React Hook useEffect has missing dependencies: 'connect' and 'state.socket'. Either include them or remove the dependency array                                                                                                                                                            react-hooks/exhaustive-deps
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\AgentMonitor.tsx
+   68:13  warning  Unexpected any. Specify a different type                                                                                                                        @typescript-eslint/no-explicit-any
+  114:6   warning  React Hook useEffect has missing dependencies: 'connectWebSocket', 'fetchAgents', and 'fetchSystemMetrics'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  122:9   warning  Unexpected console statement                                                                                                                                    no-console
+  144:9   warning  Unexpected console statement                                                                                                                                    no-console
+  870:69  warning  Unexpected any. Specify a different type                                                                                                                        @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\AlertsList.tsx
+  35:6   warning  React Hook useEffect has a missing dependency: 'fetchAlerts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  40:21  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\Analytics.tsx
+  21:3  warning  'Calendar' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  22:3  warning  'Users' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\CustomerDashboard.tsx
+  38:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\Dashboard.tsx
+   24:3   warning  'ArrowUpRight' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+   25:3   warning  'ArrowDownRight' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+   26:3   warning  'Minus' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   29:11  warning  'DashboardMetrics' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+   39:11  warning  'Vehicle' is defined but never used. Allowed unused vars must match /^_/u                @typescript-eslint/no-unused-vars
+   52:11  warning  'Alert' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   63:11  warning  'AIAgentStatus' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+   72:11  warning  'ChartData' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+   84:3   warning  'LineChart' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+  135:10  warning  'realTimeData' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  135:52  warning  Unexpected any. Specify a different type                                                 @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\DemoAnalytics.tsx
+    3:3   warning  'AreaChart' is defined but never used. Allowed unused vars must match /^_/u                      @typescript-eslint/no-unused-vars
+    3:35  warning  'LineChart' is defined but never used. Allowed unused vars must match /^_/u                      @typescript-eslint/no-unused-vars
+    9:8   warning  'Users' is defined but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+    9:15  warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+    9:23  warning  'Zap' is defined but never used. Allowed unused vars must match /^_/u                            @typescript-eslint/no-unused-vars
+    9:28  warning  'Shield' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+    9:43  warning  'Target' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+    9:51  warning  'Award' is defined but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+    9:58  warning  'Battery' is defined but never used. Allowed unused vars must match /^_/u                        @typescript-eslint/no-unused-vars
+   10:3   warning  'Thermometer' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   10:16  warning  'Droplets' is defined but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+   10:26  warning  'Settings' is defined but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+   10:36  warning  'RefreshCw' is defined but never used. Allowed unused vars must match /^_/u                      @typescript-eslint/no-unused-vars
+   11:16  warning  'SkipForward' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   11:29  warning  'Calendar' is defined but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+   11:39  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+   47:27  warning  'setScenarioResults' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  105:10  warning  'selectedTimeRange' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  105:29  warning  'setSelectedTimeRange' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\DemoInterface.tsx
+   43:9  warning  Unexpected any. Specify a different type                                                                                                        @typescript-eslint/no-explicit-any
+  206:6  warning  React Hook useEffect has missing dependencies: 'triggerDemoEvents' and 'updateLiveMetrics'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  217:6  warning  React Hook useEffect has a missing dependency: 'setupWebSocket'. Either include it or remove the dependency array                               react-hooks/exhaustive-deps
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\EdgeCaseDemo.tsx
+  15:13  warning  Unexpected any. Specify a different type                                                     @typescript-eslint/no-explicit-any
+  38:10  warning  'selectedScenario' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\LogMonitor.tsx
+   15:3   warning  'Bug' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   29:28  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   61:38  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   95:18  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  229:63  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\Login.tsx
+   74:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\MaintenanceList.tsx
+  31:56  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  48:6   warning  React Hook useEffect has a missing dependency: 'fetchMaintenance'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  53:21  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\ManufacturingDashboard.tsx
+   10:3   warning  'LineChart' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+   11:3   warning  'Line' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   48:46  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+   54:9   warning  'COLORS' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   67:19  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  500:63  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  537:66  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\SystemMaintenance.tsx
+   37:30  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   39:27  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   84:27  warning  'setRefreshInterval' is assigned a value but never used. Allowed unused vars must match /^_/u                        @typescript-eslint/no-unused-vars
+  108:6   warning  React Hook useEffect has a missing dependency: 'connectWebSocket'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  115:9   warning  Unexpected console statement                                                                                         no-console
+  135:9   warning  Unexpected console statement                                                                                         no-console
+  407:57  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  607:70  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  707:71  warning  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\VehicleDetail.tsx
+  87:6  warning  React Hook useEffect has a missing dependency: 'fetchVehicleData'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+  98:6  warning  React Hook useEffect has a missing dependency: 'fetchLatestTelemetry'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\pages\VehicleList.tsx
+  38:48  warning  Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  51:6   warning  React Hook useEffect has a missing dependency: 'fetchVehicles'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  56:21  warning  Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\services\api.ts
+  136:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  249:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  297:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  300:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  333:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  399:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  437:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  479:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  485:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  529:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  529:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  542:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  545:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  584:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  631:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  647:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  653:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  686:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  686:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  695:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  695:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  695:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  704:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  704:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  704:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  713:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  713:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  727:80  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  747:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  753:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  759:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  808:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  813:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  819:81  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  844:81  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  850:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  868:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  873:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  878:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  883:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  889:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  894:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  900:93  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  932:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  939:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  944:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  949:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  954:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  969:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  974:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  979:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\types\index.ts
+   85:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  154:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\utils\errorHandler.ts
+    6:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   12:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   15:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   25:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   39:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  137:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  191:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Oppen\Desktop\Techathon Automotive AI - EY 6.0\frontend\src\utils\logger.ts
+   5:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 190 problems (0 errors, 190 warnings)
+

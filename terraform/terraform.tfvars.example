@@ -1,0 +1,95 @@
+# AutoMind Terraform Configuration Example
+# Copy this file to terraform.tfvars and modify the values as needed
+
+# Basic Configuration
+aws_region   = "us-west-2"
+environment  = "dev"  # dev, staging, prod
+project_name = "automind"
+owner        = "AutoMind Team"
+
+# Kubernetes Configuration
+kubernetes_version = "1.27"
+
+# For development environment
+node_instance_types     = ["t3.small"]
+node_group_min_size    = 1
+node_group_max_size    = 3
+node_group_desired_size = 1
+
+# For production environment (uncomment and adjust)
+# node_instance_types     = ["t3.large", "m5.large"]
+# node_group_min_size    = 3
+# node_group_max_size    = 10
+# node_group_desired_size = 3
+
+# Database Configuration
+use_external_db     = true
+db_instance_class   = "db.t3.micro"  # Use db.t3.medium or larger for production
+db_allocated_storage = 20
+db_max_allocated_storage = 100
+db_name     = "automind_db"
+db_username = "automind_user"
+db_password = "your_secure_password_here"  # Change this!
+
+# Cache Configuration
+use_external_cache = true
+cache_node_type    = "cache.t3.micro"  # Use cache.t3.medium or larger for production
+
+# Domain Configuration (optional)
+domain_name         = "automind.com"
+create_route53_zone = false
+
+# Security Configuration
+allowed_cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production
+enable_waf         = false  # Enable for production
+
+# Monitoring and Logging
+enable_monitoring = true
+enable_logging    = true
+
+# Cost Optimization
+enable_spot_instances = false  # Enable for cost savings in non-critical environments
+
+# Auto Scaling
+enable_cluster_autoscaler           = true
+enable_horizontal_pod_autoscaler    = true
+enable_vertical_pod_autoscaler      = false
+
+# Application Configuration
+api_image_tag   = "latest"
+api_replicas    = 1  # Increase for production
+worker_replicas = 1  # Increase for production
+
+# Backup Configuration
+backup_retention_days = 7  # Increase for production
+
+# Example configurations for different environments:
+
+# Development Environment
+# environment = "dev"
+# node_instance_types = ["t3.small"]
+# db_instance_class = "db.t3.micro"
+# cache_node_type = "cache.t3.micro"
+# api_replicas = 1
+# worker_replicas = 1
+# backup_retention_days = 1
+
+# Staging Environment
+# environment = "staging"
+# node_instance_types = ["t3.medium"]
+# db_instance_class = "db.t3.small"
+# cache_node_type = "cache.t3.small"
+# api_replicas = 2
+# worker_replicas = 1
+# backup_retention_days = 3
+
+# Production Environment
+# environment = "prod"
+# node_instance_types = ["t3.large", "m5.large"]
+# db_instance_class = "db.t3.medium"
+# cache_node_type = "cache.t3.medium"
+# api_replicas = 3
+# worker_replicas = 2
+# backup_retention_days = 7
+# enable_waf = true
+# allowed_cidr_blocks = ["10.0.0.0/8", "172.16.0.0/12"]  # Restrict access

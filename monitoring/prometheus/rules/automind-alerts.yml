@@ -1,0 +1,242 @@
+groups:
+  - name: automind.api
+    rules:
+      - alert: AutoMindAPIDown
+        expr: up{job="automind-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: automind-api
+        annotations:
+          summary: "AutoMind API is down"
+          description: "AutoMind API has been down for more than 1 minute."
+
+      - alert: AutoMindAPIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="automind-api"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "AutoMind API high latency"
+          description: "95th percentile latency is {{ $value }}s for AutoMind API."
+
+      - alert: AutoMindAPIHighErrorRate
+        expr: rate(http_requests_total{job="automind-api",status=~"5.."}[5m]) / rate(http_requests_total{job="automind-api"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "AutoMind API high error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} for AutoMind API."
+
+      - alert: AutoMindAPILowThroughput
+        expr: rate(http_requests_total{job="automind-api"}[5m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "AutoMind API low throughput"
+          description: "Request rate is {{ $value }} requests/second for AutoMind API."
+
+  - name: automind.celery
+    rules:
+      - alert: CeleryWorkerDown
+        expr: up{job="celery-workers"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: celery
+        annotations:
+          summary: "Celery worker is down"
+          description: "Celery worker {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: CeleryQueueBacklog
+        expr: celery_queue_length > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: celery
+        annotations:
+          summary: "Celery queue backlog"
+          description: "Celery queue {{ $labels.queue }} has {{ $value }} pending tasks."
+
+      - alert: CeleryTaskFailureRate
+        expr: rate(celery_task_failed_total[5m]) / rate(celery_task_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: celery
+        annotations:
+          summary: "High Celery task failure rate"
+          description: "Task failure rate is {{ $value | humanizePercentage }} for Celery."
+
+  - name: automind.database
+    rules:
+      - alert: PostgreSQLDown
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL high connection usage"
+          description: "PostgreSQL connection usage is {{ $value | humanizePercentage }}."
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_database_tup_returned[5m]) / rate(pg_stat_database_tup_fetched[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "PostgreSQL query efficiency is low: {{ $value | humanizePercentage }}."
+
+      - alert: PostgreSQLDiskSpaceUsage
+        expr: (pg_database_size_bytes / (1024^3)) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL high disk usage"
+          description: "PostgreSQL database size is {{ $value }}GB."
+
+  - name: automind.redis
+    rules:
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute."
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
+
+      - alert: RedisHighConnections
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis high connection count"
+          description: "Redis has {{ $value }} connected clients."
+
+  - name: automind.kubernetes
+    rules:
+      - alert: KubernetesPodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping."
+
+      - alert: KubernetesPodNotReady
+        expr: kube_pod_status_ready{condition="false"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Pod not ready"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has been not ready for more than 5 minutes."
+
+      - alert: KubernetesNodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: kubernetes
+        annotations:
+          summary: "Node not ready"
+          description: "Node {{ $labels.node }} has been not ready for more than 5 minutes."
+
+      - alert: KubernetesNodeHighCPU
+        expr: (1 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Node high CPU usage"
+          description: "Node {{ $labels.instance }} CPU usage is {{ $value | humanizePercentage }}."
+
+      - alert: KubernetesNodeHighMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: kubernetes
+        annotations:
+          summary: "Node high memory usage"
+          description: "Node {{ $labels.instance }} memory usage is {{ $value | humanizePercentage }}."
+
+  - name: automind.business
+    rules:
+      - alert: LowVehicleDataIngestion
+        expr: rate(vehicle_data_ingested_total[5m]) < 10
+        for: 10m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "Low vehicle data ingestion rate"
+          description: "Vehicle data ingestion rate is {{ $value }} records/second."
+
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.95, rate(prediction_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "High ML prediction latency"
+          description: "95th percentile prediction latency is {{ $value }}s."
+
+      - alert: PredictionAccuracyDrop
+        expr: prediction_accuracy_ratio < 0.85
+        for: 15m
+        labels:
+          severity: critical
+          service: automind-api
+        annotations:
+          summary: "ML prediction accuracy drop"
+          description: "Prediction accuracy has dropped to {{ $value | humanizePercentage }}."
+
+      - alert: MaintenanceAlertsBacklog
+        expr: maintenance_alerts_pending > 50
+        for: 10m
+        labels:
+          severity: warning
+          service: automind-api
+        annotations:
+          summary: "High maintenance alerts backlog"
+          description: "There are {{ $value }} pending maintenance alerts."
