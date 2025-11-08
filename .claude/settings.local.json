@@ -35,7 +35,12 @@
       "Bash(powershell -ExecutionPolicy Bypass -File fix_all_colors.ps1)",
       "Bash(powershell:*)",
       "Bash(git init:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel --yes:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

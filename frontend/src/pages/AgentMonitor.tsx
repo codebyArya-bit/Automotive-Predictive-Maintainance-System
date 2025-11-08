@@ -92,7 +92,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-001',
     name: 'Diagnostic Engine AI',
-    type: 'diagnostic',
+    type: 'diagnosis' as const,
     status: 'active',
     description: 'Advanced vehicle diagnostics and fault detection',
     tasksProcessed: 1247,
@@ -105,7 +105,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-002',
     name: 'Predictive Maintenance AI',
-    type: 'predictive',
+    type: 'data_analysis' as const,
     status: 'active',
     description: 'Predictive analytics for maintenance scheduling',
     tasksProcessed: 892,
@@ -118,7 +118,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-003',
     name: 'Performance Analytics AI',
-    type: 'analytics',
+    type: 'manufacturing' as const,
     status: 'active',
     description: 'Real-time vehicle performance monitoring',
     tasksProcessed: 2104,
@@ -131,7 +131,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-004',
     name: 'Fleet Monitoring AI',
-    type: 'monitoring',
+    type: 'ueba' as const,
     status: 'active',
     description: 'Comprehensive fleet health monitoring',
     tasksProcessed: 1567,
@@ -144,7 +144,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-005',
     name: 'Customer Service AI',
-    type: 'support',
+    type: 'customer_engagement' as const,
     status: 'idle',
     description: 'Automated customer support and query handling',
     tasksProcessed: 645,
@@ -157,7 +157,7 @@ const generateMockAgents = (): Agent[] => [
   {
     id: 'agent-006',
     name: 'Quality Control AI',
-    type: 'diagnostic',
+    type: 'feedback' as const,
     status: 'error',
     description: 'Manufacturing quality assurance checks',
     tasksProcessed: 423,

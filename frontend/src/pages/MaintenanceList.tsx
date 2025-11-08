@@ -236,7 +236,7 @@ const MaintenanceList: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-xs text-slate-400">
-                    ID #{record.id || record.service_id || record.vehicle_id}
+                    ID #{record.id || record.vehicle_id}
                   </span>
                 </div>
 
