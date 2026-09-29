@@ -15,7 +15,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from langgraph.graph import END, StateGraph
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 app = FastAPI(
@@ -82,7 +82,7 @@ DEMO_USERS: Dict[str, Dict[str, Any]] = {
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str = Field(min_length=1)
 
 
