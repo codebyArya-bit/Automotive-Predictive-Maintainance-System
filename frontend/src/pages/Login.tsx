@@ -149,8 +149,11 @@ const Login: React.FC = () => {
                   </div>
 
                   <div className="p-6 bg-white/5 backdrop-blur-xl">
-                    <p className="text-cyan-300 text-sm mb-2 capitalize font-semibold">
+                    <p className="text-cyan-300 text-sm mb-1 capitalize font-semibold">
                       {user.role.replace('_', ' ')}
+                    </p>
+                    <p className="text-slate-200 text-xs font-mono mb-2 break-all">
+                      {user.email}
                     </p>
                     <p className="text-slate-300 text-xs mb-6 min-h-[40px]">
                       {user.description}
@@ -259,9 +262,10 @@ const Login: React.FC = () => {
             Demo Credentials
           </h3>
           <div className="text-sm text-slate-300 space-y-1">
-            <p><strong className="text-cyan-300">Password for all demo users:</strong> demo123</p>
+            <p><strong className="text-cyan-300">Password for all demo users:</strong> <code>demo123</code></p>
+            <p><strong className="text-cyan-300">Demo emails:</strong> rajesh@demo.com, priya@demo.com, amit@demo.com, sarah@demo.com</p>
             <p className="text-xs text-slate-400 mt-2">
-              Click any role card above for instant access to the platform
+              Use Quick Login or enter any demo email with the shared password. Logout is safe even after token expiry.
             </p>
           </div>
         </div>
