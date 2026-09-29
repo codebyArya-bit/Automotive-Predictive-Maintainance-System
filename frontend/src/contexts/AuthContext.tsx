@@ -107,7 +107,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Verify token is still valid by fetching current user
         try {
           const currentUser = await apiService.getCurrentUser();
+          if (!currentUser?.user) {
+            throw new Error('Invalid /auth/me response');
+          }
           setUser(currentUser.user);
+          localStorage.setItem('user', JSON.stringify(currentUser.user));
         } catch (error) {
           // Token expired or invalid, clear auth
           console.error('Token verification failed:', error);
@@ -142,23 +146,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
+    setIsLoading(true);
+
+    // Clear browser auth first so logout always succeeds locally, even when
+    // the backend is unavailable or the JWT has already expired.
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+
     try {
-      setIsLoading(true);
-
-      // Call logout endpoint (optional, for token invalidation)
-      try {
-        await apiService.logout();
-      } catch (error) {
-        console.error('Logout API call failed:', error);
-      }
-
-      // Clear state and localStorage
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
+      await apiService.logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Stateless JWT logout is complete once local credentials are removed.
+      console.warn('Logout API acknowledgement failed:', error);
     } finally {
       setIsLoading(false);
     }

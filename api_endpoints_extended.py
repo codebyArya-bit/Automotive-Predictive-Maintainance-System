@@ -9,7 +9,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 # Import auth and agents
-from auth import AuthService, get_current_user, authenticate_user, require_role, require_permission
+from auth import AuthService, get_current_user, authenticate_user, get_demo_user_by_email, require_role, require_permission
 from agents.service_demand_forecasting_agent import ServiceDemandForecastingAgent
 from agents.rca_capa_agent import RCACAPAAgent
 from edge_case_scenarios import EdgeCaseScenarios
@@ -70,24 +70,34 @@ async def login(request: LoginRequest):
 @router.get("/auth/me")
 async def get_current_user_info(user: Dict = Depends(get_current_user)):
     """
-    Get current authenticated user information
+    Get the currently authenticated user.
+
+    Keep the response shape identical to /auth/login so the React auth
+    provider can safely restore a session after refresh.
     """
+    demo_user = get_demo_user_by_email(user["email"]) or {}
     return {
-        "user_id": user["user_id"],
-        "email": user["email"],
-        "role": user["role"]
+        "user": {
+            "id": user["user_id"],
+            "email": user["email"],
+            "first_name": demo_user.get("first_name", ""),
+            "last_name": demo_user.get("last_name", ""),
+            "role": user["role"],
+            "phone": demo_user.get("phone"),
+            "role_data": demo_user.get("role_data", {})
+        }
     }
 
 
 @router.post("/auth/logout")
-async def logout(user: Dict = Depends(get_current_user)):
+async def logout():
     """
-    Logout endpoint (token invalidation would happen client-side)
+    Idempotent logout for the stateless JWT demo.
+
+    The browser clears its token locally. Keeping this endpoint independent
+    of token validity prevents an expired token from breaking logout.
     """
-    return {
-        "message": "Logged out successfully",
-        "user_id": user["user_id"]
-    }
+    return {"message": "Logged out successfully"}
 
 
 # ============================================================================
