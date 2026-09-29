@@ -52,30 +52,54 @@ const DEMO_USERS: DemoUser[] = [
 ];
 
 const Login: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loadingUserEmail, setLoadingUserEmail] = useState<string | null>(null);
+  const [customLoading, setCustomLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customEmail, setCustomEmail] = useState('');
   const [customPassword, setCustomPassword] = useState('');
   const [showCustomLogin, setShowCustomLogin] = useState(false);
+  const [selectedDemoUser, setSelectedDemoUser] = useState<DemoUser | null>(null);
+  const [demoEmail, setDemoEmail] = useState('');
+  const [demoPassword, setDemoPassword] = useState('');
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleDemoLogin = async (user: DemoUser) => {
+  const openDemoLogin = (user: DemoUser) => {
+    setSelectedDemoUser(user);
+    setDemoEmail(user.email);
+    setDemoPassword(user.password);
+    setError(null);
+  };
+
+  const closeDemoLogin = () => {
+    if (loadingUserEmail) return;
+    setSelectedDemoUser(null);
+    setDemoEmail('');
+    setDemoPassword('');
+  };
+
+  const handleDemoLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDemoUser) return;
+
     try {
-      setLoading(true);
+      setLoadingUserEmail(selectedDemoUser.email);
       setError(null);
 
-      await login(user.email, user.password);
+      await login(demoEmail, demoPassword);
 
-      // Navigate to role-based dashboard
-      const route = getRoleBasedRoute(user.role);
+      // Route using the authenticated user's actual role.
+      const userStr = localStorage.getItem('user');
+      const authenticatedUser = userStr ? JSON.parse(userStr) : null;
+      const route = getRoleBasedRoute(authenticatedUser?.role || selectedDemoUser.role);
+      setSelectedDemoUser(null);
       navigate(route);
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
       console.error('Login error:', err);
     } finally {
-      setLoading(false);
+      setLoadingUserEmail(null);
     }
   };
 
@@ -88,7 +112,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      setLoading(true);
+      setCustomLoading(true);
       setError(null);
 
       await login(customEmail, customPassword);
@@ -104,7 +128,7 @@ const Login: React.FC = () => {
       setError(err.message || 'Login failed. Please check your credentials.');
       console.error('Login error:', err);
     } finally {
-      setLoading(false);
+      setCustomLoading(false);
     }
   };
 
@@ -160,11 +184,11 @@ const Login: React.FC = () => {
                     </p>
 
                     <button
-                      onClick={() => handleDemoLogin(user)}
-                      disabled={loading}
+                      onClick={() => openDemoLogin(user)}
+                      disabled={loadingUserEmail !== null}
                       className={`w-full bg-gradient-to-r ${user.color} text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-900/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5`}
                     >
-                      {loading ? (
+                      {loadingUserEmail === user.email ? (
                         <span className="flex items-center justify-center">
                           <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -230,10 +254,10 @@ const Login: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={customLoading}
                   className="w-full btn-primary mt-6"
                 >
-                  {loading ? (
+                  {customLoading ? (
                     <span className="flex items-center justify-center">
                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -253,6 +277,102 @@ const Login: React.FC = () => {
               </button>
             </div>
           </>
+        )}
+
+        {/* Demo Quick Login Dialog */}
+        {selectedDemoUser && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-login-title"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) closeDemoLogin();
+            }}
+          >
+            <div className="w-full max-w-md glass-card rounded-2xl border border-cyan-400/30 shadow-2xl p-6">
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <p className="text-sm font-semibold text-cyan-300 capitalize">
+                    {selectedDemoUser.role.replace('_', ' ')}
+                  </p>
+                  <h2 id="demo-login-title" className="text-2xl font-bold text-white mt-1">
+                    Login as {selectedDemoUser.name}
+                  </h2>
+                  <p className="text-sm text-slate-300 mt-2">
+                    Demo credentials are autofilled. Review them and continue.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeDemoLogin}
+                  disabled={loadingUserEmail !== null}
+                  className="text-slate-400 hover:text-white text-2xl leading-none disabled:opacity-40"
+                  aria-label="Close demo login"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleDemoLogin} className="space-y-4">
+                <div>
+                  <label htmlFor="demo-email" className="block text-sm font-medium text-slate-200 mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="demo-email"
+                    type="email"
+                    value={demoEmail}
+                    onChange={(e) => setDemoEmail(e.target.value)}
+                    autoComplete="username"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/60 text-white"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="demo-password" className="block text-sm font-medium text-slate-200 mb-2">
+                    Password
+                  </label>
+                  <input
+                    id="demo-password"
+                    type="text"
+                    value={demoPassword}
+                    onChange={(e) => setDemoPassword(e.target.value)}
+                    autoComplete="current-password"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/60 text-white font-mono"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeDemoLogin}
+                    disabled={loadingUserEmail !== null}
+                    className="flex-1 py-3 rounded-xl border border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loadingUserEmail !== null}
+                    className={`flex-1 bg-gradient-to-r ${selectedDemoUser.color} text-white py-3 px-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {loadingUserEmail === selectedDemoUser.email ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Logging in...
+                      </span>
+                    ) : 'Continue'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
 
         {/* Demo Credentials Info */}
