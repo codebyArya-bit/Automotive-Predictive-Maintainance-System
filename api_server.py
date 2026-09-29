@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional, Set, Literal
 import asyncio
 import json
 import uuid
@@ -58,6 +58,27 @@ class VehicleProcessingResponse(BaseModel):
     customer_response: Optional[Dict[str, Any]] = None
     appointment: Optional[Dict[str, Any]] = None
     feedback: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+
+class LangGraphDemoRequest(BaseModel):
+    """Small reviewer-friendly request for the real async LangGraph workflow."""
+
+    vehicle_id: str = Field(default="DEMO-EY-001", min_length=3, max_length=64)
+    scenario: Literal["normal", "high_temperature", "brake_warning"] = "high_temperature"
+
+
+class LangGraphDemoResponse(BaseModel):
+    success: bool
+    vehicle_id: str
+    scenario: str
+    orchestration: str
+    validation: str
+    api_runtime: str
+    agents_executed: List[str]
+    escalated: bool
+    prediction: Optional[Dict[str, Any]] = None
+    workflow_step: Optional[str] = None
     error: Optional[str] = None
 
 
@@ -445,6 +466,81 @@ async def process_vehicle(
             agents_executed=[],
             escalated=True,
             error=str(e),
+        )
+
+
+@app.post("/api/v1/demo/langgraph", response_model=LangGraphDemoResponse)
+async def run_langgraph_demo(
+    request: LangGraphDemoRequest,
+    agent: MasterAgent = Depends(get_master_agent),
+) -> LangGraphDemoResponse:
+    """
+    Execute the production MasterAgent through LangGraph asynchronously.
+
+    The request/response contract is Pydantic-validated by FastAPI and the
+    MasterAgent calls LangGraph's async ainvoke path internally.
+    """
+    scenario_telemetry = {
+        "normal": {
+            "engine_temperature": 88.0,
+            "oil_pressure": 42.0,
+            "brake_pad_thickness": 8.5,
+            "battery_voltage": 12.6,
+            "mileage": 24000,
+            "error_codes": [],
+        },
+        "high_temperature": {
+            "engine_temperature": 126.0,
+            "oil_pressure": 31.0,
+            "brake_pad_thickness": 7.0,
+            "battery_voltage": 12.2,
+            "mileage": 68000,
+            "error_codes": ["P0217"],
+        },
+        "brake_warning": {
+            "engine_temperature": 92.0,
+            "oil_pressure": 40.0,
+            "brake_pad_thickness": 2.1,
+            "battery_voltage": 12.5,
+            "mileage": 54000,
+            "error_codes": ["C1234"],
+        },
+    }
+
+    try:
+        result = await agent.process_vehicle(
+            vehicle_id=request.vehicle_id,
+            telemetry_data=scenario_telemetry[request.scenario],
+            config_override={"demo_mode": True},
+        )
+        agents_executed = [
+            key.replace("_completed", "")
+            for key in result.keys()
+            if key.endswith("_completed")
+        ]
+        return LangGraphDemoResponse(
+            success=True,
+            vehicle_id=request.vehicle_id,
+            scenario=request.scenario,
+            orchestration="LangGraph StateGraph + conditional routing + MemorySaver",
+            validation="Pydantic v2 request/response models",
+            api_runtime="async FastAPI",
+            agents_executed=agents_executed,
+            escalated=result.get("escalate_to_human", False),
+            prediction=result.get("prediction"),
+            workflow_step=result.get("workflow_step"),
+        )
+    except Exception as exc:
+        return LangGraphDemoResponse(
+            success=False,
+            vehicle_id=request.vehicle_id,
+            scenario=request.scenario,
+            orchestration="LangGraph StateGraph + conditional routing + MemorySaver",
+            validation="Pydantic v2 request/response models",
+            api_runtime="async FastAPI",
+            agents_executed=[],
+            escalated=True,
+            error=str(exc),
         )
 
 
