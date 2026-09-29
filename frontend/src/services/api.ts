@@ -72,9 +72,13 @@ class ApiService {
         const appError = handleApiError(error);
         
         if (error.response?.status === 401) {
-          // Handle unauthorized access
+          // Clear the complete local session. Avoid a redirect loop when the
+          // user is already on the login page.
           localStorage.removeItem('auth_token');
-          window.location.href = '/login';
+          localStorage.removeItem('user');
+          if (window.location.pathname !== '/login') {
+            window.location.replace('/login');
+          }
         }
         
         return Promise.reject(appError);
