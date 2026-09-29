@@ -1,12 +1,11 @@
-# Python and backend files
-*.py
+# Python caches / local data (keep source Python files deployable)
 *.pyc
 __pycache__/
 *.db
 *.sqlite
+.pytest_cache/
 
-# Project files
-agents/
+# Non-production project assets
 docs/
 k8s/
 logs/
@@ -14,17 +13,13 @@ monitoring/
 terraform/
 tests/
 
-# Backend config
-requirements.txt
+# Local/development infrastructure
 render.yaml
 Dockerfile
 docker-compose.yml
 init.sql
-
-# Development
 .env
 .env.example
-.pytest_cache/
 .vscode/
 .idea/
 
