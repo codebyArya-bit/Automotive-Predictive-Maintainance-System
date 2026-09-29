@@ -5,12 +5,6 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "framework": "vite",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60,
-      "excludeFiles": "{tests/**,__tests__/**,**/*.test.py,**/test_*.py,frontend/**,docs/**,k8s/**,terraform/**,monitoring/**}"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
