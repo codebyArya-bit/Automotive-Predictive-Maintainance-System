@@ -80,7 +80,7 @@ const CustomerDashboard: React.FC = () => {
     } catch (err: any) {
       console.warn('Falling back to mock customer dashboard data', err);
       setDashboard(buildMockCustomerDashboard());
-      setError(err?.message ? `${err.message} — displaying live snapshot` : 'Showing sample snapshot while live data recovers');
+      setError(err?.message ? `${err.message} — displaying simulated sample data` : 'Showing sample snapshot while live data recovers');
     } finally {
       setLoading(false);
     }
