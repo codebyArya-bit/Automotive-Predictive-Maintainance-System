@@ -33,7 +33,7 @@ const loadConfig = (): AppConfig => {
 
   return {
     // API Configuration
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+    apiBaseUrl: import.meta.env.PROD ? window.location.origin : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'),
     wsUrl: import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws',
 
     // Environment
