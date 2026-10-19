@@ -48,8 +48,7 @@ const ScheduleService: React.FC = () => {
     try {
       // Simulated API call - replace with actual API endpoint when available
       await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('Service appointment scheduled successfully!');
-      navigate('/customer-dashboard');
+      alert('This is a demonstration: the appointment was not saved or sent. Scheduling requires a connected persistent backend.');
     } catch (error) {
       console.error('Failed to schedule service:', error);
       alert('Failed to schedule service. Please try again.');
