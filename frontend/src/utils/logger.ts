@@ -8,6 +8,8 @@ export interface LogContext {
 export type LogLevel = 'debug' | 'info' | 'warning' | 'error' | 'critical';
 
 const sendToBackend = async (payload: any) => {
+  // Vercel demo has no persistent log ingestion; avoid futile 404 requests.
+  if (import.meta.env.PROD) return;
   try {
     await apiService.post('/logs/ingest', { logs: [payload] });
   } catch {
