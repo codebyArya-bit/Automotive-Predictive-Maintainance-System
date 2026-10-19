@@ -117,7 +117,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center justify-between text-slate-300">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow shadow-emerald-400/50"></div>
-              <span className="ml-2 text-xs text-slate-300">System Online</span>
+              <span className="ml-2 text-xs text-slate-300">Demo API Available</span>
             </div>
             <div className="flex items-center space-x-2">
               <button className="p-1 text-slate-400 hover:text-white transition-colors">
@@ -191,6 +191,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </nav>
           </div>
         </header>
+
+        {import.meta.env.PROD && (
+          <div role="note" className="px-6 py-2 text-xs text-amber-100 bg-amber-950/50 border-b border-amber-500/30">
+            Interactive portfolio demo • synthetic sample data • read-only records • not connected to real vehicles
+          </div>
+        )}
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto bg-transparent">
