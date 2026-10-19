@@ -150,7 +150,7 @@ const Dashboard: React.FC = () => {
           'Failed to fetch dashboard metrics'
         );
         if (response && !wsConnected) {
-          setRealTimeData(response.data);
+          setRealTimeData(response);
           setLastUpdated(new Date());
         }
       } finally {
@@ -181,7 +181,7 @@ const Dashboard: React.FC = () => {
           'Failed to refresh dashboard metrics'
         );
         if (response) {
-          setRealTimeData(response.data);
+          setRealTimeData(response);
           setLastUpdated(new Date());
         }
       }
