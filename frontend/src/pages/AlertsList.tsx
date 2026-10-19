@@ -272,6 +272,8 @@ const AlertsList: React.FC = () => {
                   <>
                     <button
                       onClick={() => handleAcknowledge(alert.id)}
+                        disabled={import.meta.env.PROD}
+                        title={import.meta.env.PROD ? 'Read-only demonstration' : undefined}
                       className="p-2 text-warning-600 hover:text-warning-700 hover:bg-warning-50 rounded-lg transition-colors duration-200"
                       title="Acknowledge"
                     >
@@ -279,6 +281,8 @@ const AlertsList: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleResolve(alert.id)}
+                        disabled={import.meta.env.PROD}
+                        title={import.meta.env.PROD ? 'Read-only demonstration' : undefined}
                       className="p-2 text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors duration-200"
                       title="Resolve"
                     >
