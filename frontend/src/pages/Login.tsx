@@ -142,7 +142,7 @@ const Login: React.FC = () => {
             <span className="gradient-title">AutoMind AI</span>
           </h1>
           <p className="text-xl text-slate-300 mb-2">
-            Predictive Automotive Service Platform
+            Predictive Automotive Service Platform — Interactive demo with synthetic data
           </p>
           <div className="mt-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-cyan-400/30 rounded-full">
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse mr-2"></div>
