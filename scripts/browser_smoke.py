@@ -5,6 +5,7 @@ Install: pip install playwright && python -m playwright install chromium
 Run: python scripts/browser_smoke.py
 """
 import json
+import os
 import re
 import sys
 
@@ -12,7 +13,7 @@ from playwright.sync_api import sync_playwright
 
 SITES = {
     "production": "https://frontend-eight-brown-42.vercel.app",
-    "preview": "https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app",
+    "preview": os.getenv("AUTOMIND_PREVIEW_URL", "https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app"),
 }
 ROLES = [
     (0, "rajesh@demo.com", "customer", "/customer-dashboard"),
@@ -26,7 +27,8 @@ def main():
     failures = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
-        for label, base in SITES.items():
+        test_sites = {k: v for k, v in SITES.items() if os.getenv("AUTOMIND_TARGET", "both") in ("both", k)}
+        for label, base in test_sites.items():
             for index, email, role, destination in ROLES:
                 context = browser.new_context()
                 page = context.new_page()
