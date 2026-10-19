@@ -213,7 +213,27 @@ async def dashboard(user: Dict[str, Any] = Depends(current_user)) -> Dict[str, A
 
 @app.get("/api/v1/dashboard/customer")
 async def customer_dashboard(user: Dict[str, Any] = Depends(current_user)) -> Dict[str, Any]:
-    return role_dashboard(user)
+    result = role_dashboard(user)
+    result["demo"] = True
+    result["dashboard"] = {
+        "vehicles": [
+            {"vehicle_id":v["vin"], "make":v["make"], "model":v["model"],
+             "year":v["year"], "status":v["status"], "health_score":86-i*7}
+            for i,v in enumerate(VEHICLES)
+        ],
+        "recent_alerts": [
+            {"alert_id":a["id"], "type":a["type"], "severity":a["severity"],
+             "message":a["message"], "timestamp":a["timestamp"], "vehicle_id":a["vehicle_id"]}
+            for a in ALERTS
+        ],
+        "upcoming_appointments": [
+            {"appointment_id":"DEMO-APT-001","vehicle_id":VEHICLES[0]["vin"],
+             "service_type":"Battery Inspection","scheduled_date":"2026-11-03",
+             "status":"scheduled","service_center":"Demo Service Center"}
+        ],
+        "recent_calls":[],
+    }
+    return result
 
 
 @app.get("/api/v1/dashboard/service-staff")
@@ -223,7 +243,27 @@ async def service_dashboard(user: Dict[str, Any] = Depends(current_user)) -> Dic
 
 @app.get("/api/v1/dashboard/manufacturing")
 async def manufacturing_dashboard(user: Dict[str, Any] = Depends(current_user)) -> Dict[str, Any]:
-    return role_dashboard(user)
+    result = role_dashboard(user)
+    result["demo"] = True
+    result["dashboard"] = {
+        "recurring_defects":[
+            {"defect_id":"DEMO-RCA-001","component":"Brake Assembly","defect_type":"Wear variance",
+             "frequency":3,"severity":"medium","trend":"stable","cost_impact":2400},
+            {"defect_id":"DEMO-RCA-002","component":"Cooling System","defect_type":"Thermal warning",
+             "frequency":2,"severity":"high","trend":"decreasing","cost_impact":1500},
+        ],
+        "quality_metrics":{"overall_score":92,"metrics":[
+            {"metric_name":"Sample Inspection Pass Rate","current_value":92,"target_value":96,
+             "trend":"improving","status":"on_track"},
+            {"metric_name":"Sample Process Uptime","current_value":95,"target_value":98,
+             "trend":"stable","status":"on_track"}
+        ]},
+        "manufacturing_feedback":[],
+        "rca_reports":[],
+        "impact_summary":{"total_savings":"Not measured (demo)","cost_savings":"N/A",
+                          "defect_reduction":"N/A","quality_improvement":"N/A","roi":"N/A"}
+    }
+    return result
 
 
 @app.get("/api/v1/dashboard/admin")
