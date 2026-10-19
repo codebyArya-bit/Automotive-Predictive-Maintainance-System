@@ -1,0 +1,27 @@
+name: AutoMind API Origin Preview E2E
+on:
+  push:
+    branches:
+      - fix/production-api-origin-20261019
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      AUTOMIND_TARGET: preview
+      AUTOMIND_PREVIEW_URL: https://automind-a6dbt9zdb-aryas-projects-6676c3c7.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Test all demo roles and same-origin API in Chromium
+        run: python scripts/browser_smoke.py
