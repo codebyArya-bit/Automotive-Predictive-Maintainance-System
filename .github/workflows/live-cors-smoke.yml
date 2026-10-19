@@ -1,0 +1,50 @@
+name: AutoMind live API and CORS smoke check
+
+on:
+  push:
+    branches:
+      - fix/production-cors-smoke-test-20261019
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Production site and health
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 30 -o /tmp/production.html -w 'Production site: HTTP %{http_code}\n' https://frontend-eight-brown-42.vercel.app/
+          curl -fsS --max-time 30 -o /tmp/production-health.json -w 'Production health: HTTP %{http_code}\n' https://frontend-eight-brown-42.vercel.app/api/v1/health
+          python - <<'PY'
+          import json
+          with open('/tmp/production-health.json') as f:
+              data = json.load(f)
+          assert data.get('status') == 'healthy', data
+          print('Production API health payload valid')
+          PY
+      - name: Production browser CORS and login preflight
+        if: always()
+        run: |
+          bash scripts/test-cors.sh https://frontend-eight-brown-42.vercel.app https://frontend-eight-brown-42.vercel.app
+      - name: Preview site and health
+        if: always()
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 30 -o /tmp/preview.html -w 'Preview site: HTTP %{http_code}\n' https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app/
+          curl -fsS --max-time 30 -o /tmp/preview-health.json -w 'Preview health: HTTP %{http_code}\n' https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app/api/v1/health
+          python - <<'PY'
+          import json
+          with open('/tmp/preview-health.json') as f:
+              data = json.load(f)
+          assert data.get('status') == 'healthy', data
+          print('Preview API health payload valid')
+          PY
+      - name: Preview browser CORS and login preflight
+        if: always()
+        run: |
+          bash scripts/test-cors.sh https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app
