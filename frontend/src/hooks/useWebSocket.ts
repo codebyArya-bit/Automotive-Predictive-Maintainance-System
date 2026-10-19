@@ -53,6 +53,8 @@ export const useWebSocket = (url: string, options: WebSocketOptions = {}) => {
   }, [url]);
 
   const connect = useCallback(() => {
+    // The hosted Vercel showcase has no persistent WebSocket server.
+    if (import.meta.env.PROD) return;
     if (state.isConnecting || (state.socket && state.socket.readyState === WebSocket.OPEN)) {
       return;
     }
