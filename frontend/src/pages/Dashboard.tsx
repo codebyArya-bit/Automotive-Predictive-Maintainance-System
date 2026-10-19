@@ -146,7 +146,7 @@ const Dashboard: React.FC = () => {
       setIsLoading(true);
       try {
         const response = await executeWithFallback(
-          () => apiService.get('/api/dashboard/metrics'),
+          () => apiService.get('/dashboard'),
           'Failed to fetch dashboard metrics'
         );
         if (response && !wsConnected) {
@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
         sendMessage({ type: 'refresh_dashboard' });
       } else {
         const response = await executeWithFallback(
-          () => apiService.get('/api/dashboard/metrics'),
+          () => apiService.get('/dashboard'),
           'Failed to refresh dashboard metrics'
         );
         if (response) {
@@ -287,7 +287,7 @@ const Dashboard: React.FC = () => {
         <div className="absolute inset-0 opacity-30 blur-3xl pointer-events-none bg-gradient-to-r from-cyan-500 to-blue-500" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Live Fleet Telemetry</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-300">Demo Fleet Telemetry</p>
             <h1 className="text-3xl font-bold gradient-title flex items-center gap-3 mt-2">
               <BarChart3 className="w-8 h-8 text-cyan-300" />
               Fleet Command Center
