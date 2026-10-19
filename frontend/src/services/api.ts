@@ -24,12 +24,13 @@ class ApiService {
   private api: AxiosInstance;
 
   constructor() {
-    // Read API base URL from env and normalize to avoid double "/api/v1"
-    const rawApiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
-      ? import.meta.env.VITE_API_BASE_URL
-      : (import.meta.env.PROD ? window.location.origin : 'http://localhost:8000');
+    // The production frontend and FastAPI serverless endpoint are on the same Vercel origin.
+    // Ignore external VITE_API_BASE_URL overrides in production to keep JWTs on one backend.
+    const rawApiBase = import.meta.env.PROD
+      ? window.location.origin
+      : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000');
 
-    // In production default to same-origin API, never a localhost URL.\n    // Normalize: remove trailing slashes and any existing "/api/v1" suffix
+    // Normalize trailing slash and preexisting /api/v1 to avoid duplicate prefixes.
     const apiBase = rawApiBase
       .replace(/\/+$/, '')
       .replace(/\/api\/v1$/, '');
