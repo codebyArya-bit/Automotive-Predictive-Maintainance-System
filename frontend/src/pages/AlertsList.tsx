@@ -273,18 +273,16 @@ const AlertsList: React.FC = () => {
                     <button
                       onClick={() => handleAcknowledge(alert.id)}
                         disabled={import.meta.env.PROD}
-                        title={import.meta.env.PROD ? 'Read-only demonstration' : undefined}
-                      className="p-2 text-warning-600 hover:text-warning-700 hover:bg-warning-50 rounded-lg transition-colors duration-200"
-                      title="Acknowledge"
+                        className="p-2 text-warning-600 hover:text-warning-700 hover:bg-warning-50 rounded-lg transition-colors duration-200"
+                      title={import.meta.env.PROD ? "Read-only sample data" : "Acknowledge"}
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleResolve(alert.id)}
                         disabled={import.meta.env.PROD}
-                        title={import.meta.env.PROD ? 'Read-only demonstration' : undefined}
-                      className="p-2 text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors duration-200"
-                      title="Resolve"
+                        className="p-2 text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors duration-200"
+                      title={import.meta.env.PROD ? "Read-only sample data" : "Resolve"}
                     >
                       <CheckCircle className="w-4 h-4" />
                     </button>
@@ -293,8 +291,9 @@ const AlertsList: React.FC = () => {
                 {alert.status === 'acknowledged' && (
                   <button
                     onClick={() => handleResolve(alert.id)}
+                    disabled={import.meta.env.PROD}
                     className="p-2 text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors duration-200"
-                    title="Resolve"
+                    title={import.meta.env.PROD ? "Read-only sample data" : "Resolve"}
                   >
                     <CheckCircle className="w-4 h-4" />
                   </button>
