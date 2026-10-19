@@ -18,7 +18,7 @@ ROLES = [
     (0, "rajesh@demo.com", "customer", "/customer-dashboard"),
     (1, "priya@demo.com", "service_staff", "/demand-forecast"),
     (2, "amit@demo.com", "manufacturing_engineer", "/manufacturing-dashboard"),
-    (3, "sarah@demo.com", "system_admin", "/manufacturing-dashboard"),
+    (3, "sarah@demo.com", "system_admin", "/dashboard"),
 ]
 
 
@@ -43,7 +43,7 @@ def main():
                     assert dialog.locator("#demo-email").input_value() == email
                     assert dialog.locator("#demo-password").input_value() == "demo123"
                     dialog.get_by_role("button", name="Continue").click()
-                    page.wait_for_url(re.compile(re.escape(destination) + r"(?:[/?#].*)?$"), timeout=35000)
+                    page.wait_for_url(re.compile(re.escape(destination) + r"(?:[/?#].*)?$"), timeout=11000)
                     page.locator("#root").wait_for(timeout=15000)
                     session = page.evaluate("""() => ({
                         token: localStorage.getItem('auth_token'),
@@ -62,7 +62,13 @@ def main():
                     assert not js_errors, "Unhandled browser errors: " + " | ".join(js_errors[:3])
                     print(f"PASS {label}: Chromium {email} quick-login, {destination}, session and dashboard")
                 except Exception as exc:
-                    print(f"FAIL {label}: Chromium {email} : {type(exc).__name__}: {exc}")
+                    diagnostic = page.evaluate("""() => ({
+                        url:location.href,
+                        storedEmail:(JSON.parse(localStorage.getItem('user') || 'null') || {}).email || null,
+                        hasToken:!!localStorage.getItem('auth_token'),
+                        visibleText:document.body.innerText.slice(0,800)
+                    })""")
+                    print(f"FAIL {label}: Chromium {email}: {type(exc).__name__}: {exc}; diagnostics={json.dumps(diagnostic)}; pageErrors={js_errors[:3]}")
                     failures.append(f"{label} {email}")
                 finally:
                     context.close()
