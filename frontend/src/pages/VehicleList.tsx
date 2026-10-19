@@ -133,6 +133,8 @@ const VehicleList: React.FC = () => {
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
           <button 
             onClick={() => setShowVehicleForm(true)}
+            disabled={import.meta.env.PROD}
+            title={import.meta.env.PROD ? 'Read-only sample data: creation requires a persistent backend' : undefined}
             className="flex items-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
