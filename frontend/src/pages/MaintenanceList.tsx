@@ -122,6 +122,8 @@ const MaintenanceList: React.FC = () => {
         <h1 className="text-2xl font-bold text-white">Maintenance Records</h1>
         <button
           onClick={() => setShowMaintenanceForm(true)}
+            disabled={import.meta.env.PROD}
+            title={import.meta.env.PROD ? 'Read-only sample data: creation requires a persistent backend' : undefined}
           className="btn-primary flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
