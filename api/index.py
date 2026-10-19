@@ -361,5 +361,5 @@ async def langgraph_demo(request: LangGraphDemoRequest) -> Dict[str, Any]:
 
 
 # Hosted demo endpoints use synthetic read-only fixtures, distinct from the full backend.
-from api.demo_support import create_demo_router
+from api.demo_support import ALERTS, VEHICLES, create_demo_router
 app.include_router(create_demo_router(current_user))
