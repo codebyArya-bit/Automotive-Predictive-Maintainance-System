@@ -1,0 +1,108 @@
+name: AutoMind live API and CORS smoke check
+
+on:
+  push:
+    branches:
+      - fix/production-cors-smoke-test-20261019
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Production site and health
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 30 -o /tmp/production.html -w 'Production site: HTTP %{http_code}\n' https://frontend-eight-brown-42.vercel.app/
+          curl -fsS --max-time 30 -o /tmp/production-health.json -w 'Production health: HTTP %{http_code}\n' https://frontend-eight-brown-42.vercel.app/api/v1/health
+          python - <<'PY'
+          import json
+          with open('/tmp/production-health.json') as f:
+              data = json.load(f)
+          assert data.get('status') == 'healthy', data
+          print('Production API health payload valid')
+          PY
+      - name: Production browser CORS and login preflight
+        if: always()
+        run: |
+          bash scripts/test-cors.sh https://frontend-eight-brown-42.vercel.app https://frontend-eight-brown-42.vercel.app
+      - name: Preview site and health
+        if: always()
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 30 -o /tmp/preview.html -w 'Preview site: HTTP %{http_code}\n' https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app/
+          curl -fsS --max-time 30 -o /tmp/preview-health.json -w 'Preview health: HTTP %{http_code}\n' https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app/api/v1/health
+          python - <<'PY'
+          import json
+          with open('/tmp/preview-health.json') as f:
+              data = json.load(f)
+          assert data.get('status') == 'healthy', data
+          print('Preview API health payload valid')
+          PY
+      - name: Preview browser CORS and login preflight
+        if: always()
+        run: |
+          bash scripts/test-cors.sh https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app
+      - name: Real demo login, identity and dashboard (production and preview)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+          from html.parser import HTMLParser
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.urls = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      src = dict(attrs).get('src')
+                      if src:
+                          self.urls.append(src)
+
+          sites = {
+              "production": "https://frontend-eight-brown-42.vercel.app",
+              "preview": "https://automind-mafb5ffbx-aryas-projects-6676c3c7.vercel.app",
+          }
+          errors = []
+          for name, base in sites.items():
+              try:
+                  with urlopen(Request(base + "/"), timeout=30) as r:
+                      page = r.read().decode()
+                      assert r.status == 200
+                  parser = Scripts()
+                  parser.feed(page)
+                  assert parser.urls, "No JavaScript bundle in HTML"
+                  for src in parser.urls[:1]:
+                      url = src if src.startswith("https://") else base + (src if src.startswith("/") else "/" + src)
+                      with urlopen(Request(url), timeout=30) as r:
+                          assert r.status == 200, "JavaScript bundle is not served"
+                          assert len(r.read()) > 100, "JavaScript bundle unexpectedly empty"
+                  print(f"PASS {name}: HTML and JS bundle load")
+                  payload = json.dumps({"email":"rajesh@demo.com","password":"demo123"}).encode()
+                  req = Request(base + "/api/v1/auth/login", data=payload, method="POST", headers={"Content-Type":"application/json"})
+                  with urlopen(req, timeout=30) as r:
+                      assert r.status == 200
+                      login = json.load(r)
+                  assert login["user"]["email"] == "rajesh@demo.com"
+                  token = login["token"]
+                  headers = {"Authorization":"Bearer " + token}
+                  with urlopen(Request(base + "/api/v1/auth/me", headers=headers), timeout=30) as r:
+                      me = json.load(r)
+                  assert me["user"]["email"] == "rajesh@demo.com"
+                  with urlopen(Request(base + "/api/v1/dashboard", headers=headers), timeout=30) as r:
+                      dash = json.load(r)
+                  assert "system_metrics" in dash and "agent_metrics" in dash
+                  print(f"PASS {name}: real demo login, session verification, authenticated dashboard")
+              except Exception as exc:
+                  print(f"FAIL {name}: {type(exc).__name__}: {exc}")
+                  errors.append(name)
+          if errors:
+              raise SystemExit("Functional API failures: " + ", ".join(errors))
+          PY

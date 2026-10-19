@@ -1,0 +1,24 @@
+name: AutoMind Chromium E2E
+on:
+  push:
+    branches:
+      - fix/production-cors-smoke-test-20261019
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare Chromium
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Verify live browser login and CORS
+        run: python scripts/browser_smoke.py

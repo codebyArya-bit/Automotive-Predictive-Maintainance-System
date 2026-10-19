@@ -27,9 +27,9 @@ class ApiService {
     // Read API base URL from env and normalize to avoid double "/api/v1"
     const rawApiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
       ? import.meta.env.VITE_API_BASE_URL
-      : 'http://localhost:8000';
+      : (import.meta.env.PROD ? window.location.origin : 'http://localhost:8000');
 
-    // Normalize: remove trailing slashes and any existing "/api/v1" suffix
+    // In production default to same-origin API, never a localhost URL.\n    // Normalize: remove trailing slashes and any existing "/api/v1" suffix
     const apiBase = rawApiBase
       .replace(/\/+$/, '')
       .replace(/\/api\/v1$/, '');

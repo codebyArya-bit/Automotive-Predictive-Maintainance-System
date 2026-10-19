@@ -25,12 +25,24 @@ app = FastAPI(
     redoc_url=None,
 )
 
+def _configured_origins() -> list[str]:
+    """Permit configured exact HTTPS frontend origins without wildcards."""
+    extra = os.getenv("FRONTEND_ORIGINS", "")
+    origins = [
+        "https://automind-ai-aryas-projects-6676c3c7.vercel.app",
+        "https://frontend-eight-brown-42.vercel.app",
+        "http://localhost:5173",
+    ]
+    for origin in extra.split(","):
+        origin = origin.strip().rstrip("/")
+        if origin.startswith(("https://", "http://localhost:", "http://127.0.0.1:")) and origin not in origins:
+            origins.append(origin)
+    return origins
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://automind-ai-aryas-projects-6676c3c7.vercel.app",
-        "http://localhost:5173",
-    ],
+    allow_origins=_configured_origins(),
     allow_origin_regex=r"https://automind-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
