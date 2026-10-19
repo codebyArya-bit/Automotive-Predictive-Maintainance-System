@@ -1,0 +1,22 @@
+name: AutoMind Recruiter Demo Audit
+on:
+  push:
+    branches: [audit/recruiter-demo-20261019]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recruiter-browser-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium and Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Audit real production website read-only
+        run: python -u scripts/recruiter_audit.py
