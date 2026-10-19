@@ -193,7 +193,7 @@ const LogsMonitor: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${isConnected ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
               <CircleDot className={`w-4 h-4 ${isConnected ? 'text-green-600' : 'text-yellow-600'}`} />
-              {isConnected ? 'Connected' : `Connecting… (${reconnectCount})`}
+              {isConnected ? 'Connected' : `Demo mode (no live WebSocket) (${reconnectCount})`}
             </span>
             <button
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${realtime ? 'bg-blue-600 text-white border-blue-600' : 'glass-card text-slate-200 border-white/20'}`}
